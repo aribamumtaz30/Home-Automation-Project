@@ -1,0 +1,76 @@
+#include "stm32f401xc.h"
+#include"RCC.h"
+#include<stdio.h>
+
+
+void Uart2_Config(void);
+void Delay_ms(volatile int time_ms);
+void Uart2_sendchar(uint8_t);
+
+void Uart2_Config(void){
+// GPIO
+	RCC->AHB1ENR |= (1<<0);									// Enables clock of GPIOA
+	GPIOA->MODER |= (2<<4);									// Selects alternate function mode for PA2 (TX)
+	GPIOA->MODER |= (2<<6);									// Selects alternate function mode for PA3 (RX)
+	
+	GPIOA->AFR[0] |= (7<<8);								// Selects alternate function for PA2 (USART2_TX)
+	GPIOA->AFR[0] |= (7<<12);								// Selects alternate function for PA3 (USART2_RX)
+		
+// USART2
+	RCC->APB1ENR |= (1<<17);								// Enable Usart2 clock
+	USART2->CR1 |= (1<<13);									// Usart2 enable
+	USART2->CR1 &= ~(uint32_t)(1<<12);
+	USART2->BRR |= (0x0d<<0) | (22<<4);
+	USART2->CR1 |= (1<<3);
+}
+	
+
+void Uart2_sendchar(uint8_t c){
+	USART2->DR = c;
+	while (!(USART2->SR & (1<<6)));
+}
+void send(char*);
+
+int main (){
+	SysClockConfig();
+	Uart2_Config();
+	char* something = "Hello";
+	int i = 0;
+	
+	while(1){
+		
+		Uart2_sendchar(something[i]);
+		i++;
+		
+//		Uart2_sendchar(66);
+//		Delay_ms(100);
+
+//		Uart2_sendchar(67);
+//		Delay_ms(100);
+//		Uart2_sendchar(68);
+//		Delay_ms(100);
+//		Uart2_sendchar(69);
+//		Delay_ms(100);
+//		Uart2_sendchar(70);
+//		Delay_ms(100);
+//		Uart2_sendchar(71);
+//		Delay_ms(100);
+//		char array[5];
+//		array[0]='A' ;
+//		array[1]='B' ;
+//		array[2]='C' ;
+//		array[3]='D' ;
+//		array[4]='E' ;
+//		void send(array);
+	}
+	
+}
+
+void Delay_ms(volatile int time_ms)
+{
+	      int j;
+        for(j = 0; j < time_ms*10000; j++)
+            {}  /* excute NOP for 1ms */
+}
+
+// function that will accept any string and covert it into number
